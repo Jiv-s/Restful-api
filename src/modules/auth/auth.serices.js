@@ -27,7 +27,7 @@ const register = async ({name,email,passward,role})=>{
             role,
             verificationToken : hashToken
     })
-    // todo send emailto user with token:raw token
+    // todo send email to user with token:raw token
     // if you forgot that select is true you can manully delete it form here
     const userObj= user.toObject()
     delete userObj.passward
@@ -40,6 +40,8 @@ const login = async ({email,passward}) => {
     if(!user) return ApiError.unauthorised("email passward is invalid") 
         
     // todo check validate passward
+    const ismatched = await user.comparePass(passward) 
+    if(!ismatched) throw ApiError.unauthorised("invalid passward")
 
     if(!isVerified) return ApiError.forbidden("verify before login")
     
@@ -49,6 +51,7 @@ const login = async ({email,passward}) => {
     const refreshToken = generateRefreshToken({id:user._id})
 
     //store in db 
+
     user.refreshToken = hashedToken(refreshToken)
     //these changes are being done on the copy of user schema
     //orginal 
@@ -84,7 +87,7 @@ const refresh = async(token) =>{
 }
 
 const logout = async(userId)=>{
-    await User.findbyIdAndUpdate(userId,{refreshToken:undefined})
+    await User.findbyIdAndUpdate(userId,{refreshToken:undefined}) //this is a db call
 }
 
 const forgotPassward = async(email)=>{
@@ -98,3 +101,11 @@ const forgotPassward = async(email)=>{
 
     //todo mail services
 }
+
+const getMe = async(userId)=>{
+    const user = User.findbyId(userId)
+    if(!user) throw ApiError.notfound("user dne")
+    return user
+}
+
+export {register,login,refresh,logout,forgotPassward,getMe}

@@ -8,7 +8,7 @@ class BaseDto {
             stripUnknown:true // only fiels defined by me
         })
         if(error){
-            const errors = error.details.map((d)=>d.message)
+            const error = error.details.map((d)=>d.message)
             return {errors,value:null}
         }
         return{errors:null,value} //make sure of the consistency is maintained 

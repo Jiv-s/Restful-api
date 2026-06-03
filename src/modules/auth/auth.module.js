@@ -1,5 +1,6 @@
-import { boolean, custom, date, string } from "joi"
+import { boolean, custom, date, required, string } from "joi"
 import mongoose from "mongoose"
+import bcrypt from 'bcrypt'
 
 const userSchema = new mongoose.Schema({
     name:{
@@ -12,13 +13,13 @@ const userSchema = new mongoose.Schema({
     email:{
         type:string,
         trim:true,
-        require:[true,"email is require"],
+        required:[true,"email is require"],
         unique:true,
         lowercase:true,
     },
     passward:{
         type:string,
-        require:[true,"passward is require"],
+        required:[true,"passward is require"],
         minlength:8,
         maxlength:200,
         select:false, // doesnot returns this when user is created
@@ -40,5 +41,15 @@ const userSchema = new mongoose.Schema({
 
     
 },{timestamps:true})  //rember this is second argument auto maps time
+
+userSchema.pre('save',async function (){
+    if(!this.isModified('passward'))return next()
+    this.passward = await bcrypt.hash(this.passward,10)
+    next()
+})
+
+userSchema.methods.comparePass = async function(clrtxtpass) {
+    return bcrypt.compare(clrtxtpass,this.passward)
+}
 
 export default mongoose.model("user",userSchema)
