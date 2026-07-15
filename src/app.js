@@ -4,6 +4,7 @@ import authRouter from "./modules/auth/auth.routes.js"
 import multer from "multer"
 import ApiResponse from "./common/config/utils/api-response.js"
 import path from 'path'
+import { error } from "console"
 
 const app = express()
 app.use(express.json())
@@ -28,10 +29,23 @@ const storage = multer.diskStorage({
   }
 })
 
-const upload = multer({ storage: storage })
+const upload = multer({ storage: storage,
+    limits:{fileSize:1024*1024*1},
+    fileFilter:(req,file,cb)=>{
+        const allowed = ["image/png","image/jpeg","application/pdf"]
+        if(allowed.includes(file.mimetype)) {
+            cb(null,true)
+        }
+        else{
+            cb("file not supported",false) 
+        }
+        
+    }
+})
 
 //upload.array("files") c.log(req.files) =>> for multiple files and 
-//upload.filds({{name:"pfp,maxcpunt :1"}}) =>> used to set only matched name adn the givem=n count is uploaded 
+//upload.filds({{name:"pfp,maxcpunt :1"}}) =>> used to set only matched name adn the givem=n count is uploaded
+
 app.post('/upload',upload.array('files'),(req,res)=>{
     console.log(req.files)
     ApiResponse.ok(res,"file uploded")
