@@ -8,7 +8,7 @@ const start = async ()=>{
     // await connect db call 
     await connectdb() 
     app.listen(PORT,()=>{
-        console.log(`running on port ${PORT} and in ${NODE_ENV}`)
+        console.log(`running on port ${PORT} and in ${process.env.NODE_ENV}`)
     })
 }
 

@@ -1,7 +1,7 @@
-import { use } from "react";
-import ApiError from "../../common/config/utils/api-error";
-import { generateAceessToken, generateRefreshToken, generateResetToken, verifyAcessToken } from "../../common/config/utils/jwt-utils";
-import User from "./auth.module"
+// cleanup: remove accidental react import
+import ApiError from "../../common/config/utils/api-error.js";
+import { generateAceessToken, generateRefreshToken, generateResetToken, verifyAcessToken } from "../../common/config/utils/jwt-utils.js";
+import User from "./auth.module.js"
 import { decode } from "jsonwebtoken";
 
 //hashing function to store hashed token in db as save space
@@ -9,41 +9,46 @@ const hashedToken = (token)=> {
     return crypto
             .createHash("sha256")
             .update(rawToken)
-            .digest(hex)
+            .digest("hex")
     
     }
 
-const register = async ({name,email,passward,role})=>{
+const register = async ({name,email,password,role})=>{
     const existing = await User.findOne({email})  //also a mongoose function
     if(existing) throw ApiError.conflict("email already exist")
 
 
-        const {rawToken,hashToken} = generateResetToken
+        const {rawToken,hashToken} = generateResetToken()
         
-        const user = await User.Create({  //is a database call 
-            name,                                               
-            email,                               
-            passward,
-            role,
-            verificationToken : hashToken
-    })
+    console.log("Before create");
+
+    const user = await User.create({
+        name,
+        email,
+        password,
+        role,
+        verificationToken: hashToken,
+    });
+
+    console.log("Created user:", user);
     // todo send email to user with token:raw token
     // if you forgot that select is true you can manully delete it form here
     const userObj= user.toObject()
-    delete userObj.passward
+    delete userObj.password
     delete userObj.verificationToken 
-
+    return userObj;
 }
 
-const login = async ({email,passward}) => {
-    const user = await User.findOne(email).select("+passward") //to select true for passward
-    if(!user) return ApiError.unauthorised("email passward is invalid") 
+const login = async ({email,password} = {}) => {
+    if (!email || !password) throw ApiError.badRequest('email and password are required')
+    const user = await User.findOne({email}).select("+password") //to select true for password
+    if(!user) return ApiError.unauthorised("email password is invalid") 
         
-    // todo check validate passward
-    const ismatched = await user.comparePass(passward) 
-    if(!ismatched) throw ApiError.unauthorised("invalid passward")
+    // todo check validate password
+    const ismatched = await user.comparePassword(password) 
+    if(!ismatched) throw ApiError.unauthorised("invalid password")
 
-    if(!isVerified) return ApiError.forbidden("verify before login")
+    if(!user.isVerified) return ApiError.forbidden("verify before login")
     
     //generating tokens 
 
@@ -60,7 +65,7 @@ const login = async ({email,passward}) => {
     //await as db is in another continent 
 
     const userObj = user.toObject()
-    delete userObj.passward
+    delete userObj.password
     delete userObj.refreshToken
 
     return({user:userObj , refreshToken,accessToken})
@@ -79,7 +84,7 @@ const refresh = async(token) =>{
     await user.save({validateBeforeSave : false}) // saves in db og copy and says dont validate as i know what i am doing
     
     const userObj = user.toObject()
-    delete userObj.passward
+    delete userObj.password
     delete userObj.refreshToken
 
     return {accessToken,refreshToken}
@@ -90,12 +95,12 @@ const logout = async(userId)=>{
     await User.findbyIdAndUpdate(userId,{refreshToken:undefined}) //this is a db call
 }
 
-const forgotPassward = async(email)=>{
-    const user =await User.findOne(email)
+const forgotpassword = async(email)=>{
+    const user =await User.findOne({email})
     if(!user) throw ApiError.notfount("user not found")
-    const{rawToken,hashedToken} = generateResetToken
-    user.resetPasswardToken = hashedToken //store in db 
-    user.resetPasswardExpires = 15*60*1000 ///15 min
+    const{rawToken,hashedToken} = generateResetToken()
+    user.resetpasswordToken = hashedToken //store in db 
+    user.resetpasswordExpires = 15*60*1000 ///15 min
     await user.save()
 
 
@@ -108,4 +113,4 @@ const getMe = async(userId)=>{
     return user
 }
 
-export {register,login,refresh,logout,forgotPassward,getMe}
+export {register,login,refresh,logout,forgotpassword,getMe}

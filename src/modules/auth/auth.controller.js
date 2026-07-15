@@ -2,11 +2,11 @@ import ApiResponse from './../../common/config/utils/api-response.js'
 import * as authService from './auth.serices.js'
 
 const register = async (req,res)=>{
-    const user = authService.register(req.body)    //responsible to send the data to the service 
+    const user = await authService.register(req.body)    //responsible to send the data to the service 
     ApiResponse.created(res,"Registration is done",user)
 }
 const login = async(req,res)=>{
-    const {user,refreshToken,accessToken} = authService.login(req.body)
+    const {user,refreshToken,accessToken} = await authService.login(req.body)
     res.cookie("refreshToken",refreshToken,{
         httpOnly:true,
         secure:true,

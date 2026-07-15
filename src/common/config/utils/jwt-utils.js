@@ -6,7 +6,7 @@ const generateResetToken = () => {          // this will generate ramdom charcat
     const hashedToken  = crypto
         .createHash("sha256")
         .update(rawToken)
-        .digest(hex)
+        .digest("hex")
 
     return {rawToken,hashedToken}
 }

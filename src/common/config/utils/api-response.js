@@ -21,3 +21,5 @@ class ApiResponse{
         return res.status(204).send()
     }
 }
+
+export default ApiResponse
