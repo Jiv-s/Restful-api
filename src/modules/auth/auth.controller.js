@@ -27,4 +27,9 @@ const getMe = async(req,res)=>{
     ApiResponse.ok(res,"User profile",user)
 }
 
+const avatar = async(req,res)=>{
+   const result = await authService.avatar(req.user.id,file)
+    ApiResponse.ok(res,"uploaded avatar successfully",{avatarUrl:result.url})
+}
+
 export {register,login,logout,getMe}

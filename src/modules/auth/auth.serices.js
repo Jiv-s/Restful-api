@@ -113,4 +113,6 @@ const getMe = async(userId)=>{
     return user
 }
 
+const avatar = 
+
 export {register,login,refresh,logout,forgotpassword,getMe}

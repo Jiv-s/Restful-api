@@ -4,6 +4,7 @@ import validate from "./../../common/middleware/validate.middleware.js"
 import RegisterDto from "./dto/registor.dto.js"
 import loginDto from "./dto/login.dto.js"
 import { authenticate } from "./auth.middlewer.js"
+import upload from "../../common/middleware/multer.middleware.js"
 
 
 const router = Router()
@@ -12,4 +13,6 @@ router.post('/register',validate(RegisterDto),controller.register)
 router.post('/login',validate(loginDto),controller.login)
 router.post('/logout',authenticate,controller.logout)
 router.get('/getMe',authenticate,controller.getMe)
+
+router.post('/upload',upload.single('avatar'),controller.avatar)
 export default router
