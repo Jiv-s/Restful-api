@@ -14,5 +14,5 @@ router.post('/login',validate(loginDto),controller.login)
 router.post('/logout',authenticate,controller.logout)
 router.get('/getMe',authenticate,controller.getMe)
 
-router.post('/upload',upload.single('avatar'),controller.avatar)
+router.post('/upload',authenticate,upload.single('avatar'),controller.avatar)
 export default router

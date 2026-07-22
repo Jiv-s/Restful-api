@@ -1,14 +1,17 @@
 // cleanup: remove accidental react import
+import crypto from "crypto";
 import ApiError from "../../common/config/utils/api-error.js";
 import { generateAceessToken, generateRefreshToken, generateResetToken, verifyAcessToken } from "../../common/config/utils/jwt-utils.js";
 import User from "./auth.module.js"
 import { decode } from "jsonwebtoken";
+import fs from 'fs'
+import imagekit from "../../common/config/imagelit.js";
 
 //hashing function to store hashed token in db as save space
 const hashedToken = (token)=> {
     return crypto
             .createHash("sha256")
-            .update(rawToken)
+            .update(token)
             .digest("hex")
     
     }
@@ -42,13 +45,13 @@ const register = async ({name,email,password,role})=>{
 const login = async ({email,password} = {}) => {
     if (!email || !password) throw ApiError.badRequest('email and password are required')
     const user = await User.findOne({email}).select("+password") //to select true for password
-    if(!user) return ApiError.unauthorised("email password is invalid") 
+    if(!user) throw ApiError.unauthorised("email password is invalid")
         
     // todo check validate password
     const ismatched = await user.comparePassword(password) 
     if(!ismatched) throw ApiError.unauthorised("invalid password")
 
-    if(!user.isVerified) return ApiError.forbidden("verify before login")
+    // if(!user.isVerified) throw ApiError.forbidden("verify before login")
     
     //generating tokens 
 
@@ -92,7 +95,7 @@ const refresh = async(token) =>{
 }
 
 const logout = async(userId)=>{
-    await User.findbyIdAndUpdate(userId,{refreshToken:undefined}) //this is a db call
+    await User.findByIdAndUpdate(userId,{refreshToken:null}) //this is a db call
 }
 
 const forgotpassword = async(email)=>{
@@ -108,11 +111,25 @@ const forgotpassword = async(email)=>{
 }
 
 const getMe = async(userId)=>{
-    const user = User.findbyId(userId)
+    const user = await User.findById(userId)
     if(!user) throw ApiError.notfound("user dne")
+    user.password = undefined
+    user.refreshToken = undefined
     return user
 }
 
-const avatar = 
+const avataruplaod = async (userId,file)=>{
+    const filestream = fs.createReadStream(file.path)
+    const uploadImage = await imagekit.files.upload({
+        file:filestream,
+        fileName:file.name,
+        folder:"/user-avatar"
+    })
+    // this will generate an url  of the image so that db stores it 
+    await User.findByIdAndUpdate(userId,{avatar:avataruplaod.url},{new:true})
+    //image uploaded is assigned to that user 
+    fs.unlinkSync(file.path)
+    return {url:avataruplaod.url,fileId:avataruplaod.fileId}
+} 
 
-export {register,login,refresh,logout,forgotpassword,getMe}
+export {register,login,refresh,logout,forgotpassword,getMe,avataruplaod}

@@ -9,7 +9,7 @@ const login = async(req,res)=>{
     const {user,refreshToken,accessToken} = await authService.login(req.body)
     res.cookie("refreshToken",refreshToken,{
         httpOnly:true,
-        secure:true,
+        secure:process.env.NODE_ENV === "production",
         sameSite:'strict',
         maxAge:7*24*60*60*1000
     })
@@ -23,13 +23,13 @@ const logout = async (req,res)=>{
 }
 
 const getMe = async(req,res)=>{
-    await authService.getMe(req.user.id)
+    const user = await authService.getMe(req.user.id)
     ApiResponse.ok(res,"User profile",user)
 }
 
 const avatar = async(req,res)=>{
-   const result = await authService.avatar(req.user.id,file)
+   const result = await authService.avataruplaod(req.user.id,req.file)
     ApiResponse.ok(res,"uploaded avatar successfully",{avatarUrl:result.url})
 }
 
-export {register,login,logout,getMe}
+export {register,login,logout,getMe,avatar}

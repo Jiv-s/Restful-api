@@ -12,17 +12,17 @@ const generateResetToken = () => {          // this will generate ramdom charcat
 }
 
 const generateAceessToken = (payload)=>{
-    return jwt.sign(payload,prosess.env.JWT_ACCESS_SECRATE,{
-        expiresIn: process.env.JWT_ACCESS_EXPRIES_IN || '15m'
+    return jwt.sign(payload,process.env.JWT_ACCESS_SECRET,{
+        expiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m'
     })
 }
 const verifyAcessToken = (token)=>{
-    return jwt.verify(token,process.env.JWT_ACCESS_SECRATE)
+    return jwt.verify(token,process.env.JWT_ACCESS_SECRET)
 }
 
 const generateRefreshToken = (payload) => {
-    jwt.sign(payload,process.env.JWT_REFRESH_SECRET,{
-        expiresIn: process.env.JWT_REFRESH_EXPRIES_IN|| '7d'
+    return jwt.sign(payload,process.env.JWT_REFRESH_SECRET,{
+        expiresIn: process.env.JWT_REFRESH_EXPIRES_IN|| '7d'
     })
 }
 
