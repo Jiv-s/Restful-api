@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import Owner from "./owoner.js"
+import Owner from "./owner.js"
 
 const teamSchema = new mongoose.Schema({
     name:{

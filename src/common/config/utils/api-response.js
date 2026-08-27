@@ -20,6 +20,13 @@ class ApiResponse{
     static nocontent(res,message,data=null){
         return res.status(204).send()
     }
+    static updated(res,message,data=null){
+        return res.status(202).json({
+            success:true,
+            message,
+            data
+        })
+    }
 }
 
 export default ApiResponse
