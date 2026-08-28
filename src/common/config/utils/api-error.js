@@ -7,7 +7,7 @@ class ApiError extends Error{
     }
     //static method is used here as no need to create a object everytmine using the methods wecan directly call it uisng ApiError class
     static badRequest(message="bad Request"){
-        return new ApiError(400,message)
+        return new ApiError(400,message)    // not all date is sent 
     }
     static unauthorised(message="unauthorised Request"){
         return new ApiError(401,message)
